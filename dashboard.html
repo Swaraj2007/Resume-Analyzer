@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard • AI Resume Analyzer & ATS Benchmark</title>
+    <meta name="description" content="AI Resume Analyzer Dashboard - Real-time ATS scoring, keyword detection, and actionable suggestions.">
+    
+    <!-- Google Fonts: Plus Jakarta Sans, Inter, JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti CDN for Score celebrations (>=85) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+    <!-- Ambient Aurora / Mesh Gradient Background -->
+    <div class="ambient-glow orb-1"></div>
+    <div class="ambient-glow orb-2"></div>
+    <div class="ambient-glow orb-3"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Global Toast Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <div class="dashboard-wrapper">
+        <!-- ======================================================== -->
+        <!-- Top Sticky Navigation Bar                                -->
+        <!-- ======================================================== -->
+        <header class="navbar" id="topNavbar">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <span class="sparkle-emoji">✨</span>
+                </div>
+                <div class="brand-text">
+                    <h2>AI Resume Analyzer</h2>
+                    <span class="brand-subtitle">Smart ATS Scoring & Optimization</span>
+                </div>
+            </div>
+
+            <div class="nav-controls">
+                <!-- Theme Toggle Button -->
+                <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+                    <span class="theme-icon sun-icon">☀️</span>
+                    <span class="theme-icon moon-icon">🌙</span>
+                </button>
+
+                <div class="nav-user">
+                    <!-- User Profile Button (Opens Personal Details Modal) -->
+                    <button class="user-profile-btn" id="userProfileBtn" title="Click to view & edit your Personal Details">
+                        <span class="user-avatar" id="userAvatar">U</span>
+                        <div class="user-meta">
+                            <strong id="userName">User</strong>
+                            <small id="userEmail">user@example.com</small>
+                        </div>
+                        <span class="profile-chip">👤 Profile Info</span>
+                    </button>
+
+                    <!-- Sign Out Button -->
+                    <button class="logout-btn" id="logoutBtn" title="Sign out of your account">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        <span>Sign Out</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ======================================================== -->
+        <!-- Main Content Area with Sliding Glider Tabs               -->
+        <!-- ======================================================== -->
+        <main class="dashboard-content">
+            <!-- Tabs Navigation Bar with sliding active glider -->
+            <div class="tabs-nav-wrapper">
+                <nav class="tabs-nav" id="tabsNav" role="tablist">
+                    <div class="tab-glider" id="tabPillGlider"></div>
+                    
+                    <button class="tab-btn active" data-tab="upload-tab" id="tabBtnUpload" role="tab" aria-selected="true" aria-controls="upload-tab">
+                        <span class="tab-icon">📤</span>
+                        <span class="tab-text">Upload Resume</span>
+                    </button>
+                    
+                    <button class="tab-btn" data-tab="analysis-tab" id="tabBtnAnalysis" role="tab" aria-selected="false" aria-controls="analysis-tab">
+                        <span class="tab-icon">📊</span>
+                        <span class="tab-text">Analysis Results</span>
+                        <span class="badge-dot" id="analysisActiveDot" style="display: none;" title="Active analysis ready"></span>
+                    </button>
+                    
+                    <button class="tab-btn" data-tab="records-tab" id="tabBtnHistory" role="tab" aria-selected="false" aria-controls="records-tab">
+                        <span class="tab-icon">📜</span>
+                        <span class="tab-text">Resume History</span>
+                        <span class="tab-count-badge" id="recordCount">0</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- ==================================================== -->
+            <!-- Tab 1: Upload Resume File                            -->
+            <!-- ==================================================== -->
+            <section class="tab-panel active" id="upload-tab" role="tabpanel" aria-labelledby="tabBtnUpload">
+                <div class="card upload-card">
+                    <div class="card-header">
+                        <div class="card-title-group">
+                            <span class="card-badge">Instant AI Evaluation</span>
+                            <h3>Upload Resume Document</h3>
+                        </div>
+                        <p>Upload your resume in PDF, DOCX, DOC, or TXT format. Our ATS intelligence engine analyzes overall score, technical depth, quantifiable impact, and recruiter-focused improvements in seconds.</p>
+                    </div>
+
+                    <div id="uploadAlert" class="alert-box" role="alert"></div>
+
+                    <form id="resumeUploadForm" enctype="multipart/form-data">
+                        <!-- Interactive Animated Dropzone -->
+                        <div class="upload-dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload resume by dragging and dropping or browsing">
+                            <input type="file" id="resumeFileInput" name="resumeFile" accept=".pdf,.doc,.docx,.txt" required />
+                            <div class="dropzone-content">
+                                <div class="upload-icon-wrapper">
+                                    <div class="icon-pulse-glow"></div>
+                                    <svg class="upload-cloud-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                </div>
+                                <h4>Drag & Drop your resume here, or <span class="highlight">Browse file</span></h4>
+                                <p class="dropzone-subtext">Supported formats: PDF, DOCX, DOC, TXT (Maximum size 10MB)</p>
+                                
+                                <div class="format-chips">
+                                    <span class="chip">PDF</span>
+                                    <span class="chip">DOCX</span>
+                                    <span class="chip">DOC</span>
+                                    <span class="chip">TXT</span>
+                                </div>
+
+                                <!-- Rich File Preview Card -->
+                                <div id="selectedFileName" class="selected-file-name" style="display: none;">
+                                    <div class="file-preview-card" id="filePreviewCard">
+                                        <span class="file-type-icon">📄</span>
+                                        <div class="file-info-text">
+                                            <strong class="file-name-label" id="previewFileName">resume.pdf</strong>
+                                            <small class="file-size-label" id="previewFileSize">150 KB</small>
+                                        </div>
+                                        <button type="button" class="remove-file-btn" id="removeFileBtn" title="Remove selected file">&times;</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Optional Candidate Profile Enrichment Fields -->
+                        <div class="form-grid" style="margin-top: 26px;">
+                            <div class="field">
+                                <label for="uploadFullName">Full Name (optional)</label>
+                                <input type="text" id="uploadFullName" placeholder="e.g. Swaraj Thakur" autocomplete="name" />
+                            </div>
+                            <div class="field">
+                                <label for="uploadPhone">Phone (optional)</label>
+                                <input type="text" id="uploadPhone" placeholder="e.g. +91 9876543210" autocomplete="tel" />
+                            </div>
+                            <div class="field full-width">
+                                <label for="uploadSkills">Target Role Skills / Keywords (comma separated)</label>
+                                <input type="text" id="uploadSkills" placeholder="e.g. React, Node.js, Python, AWS, Docker, MongoDB, System Design" />
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="submit" class="submit-btn" id="uploadSubmitBtn">
+                                <span class="btn-icon">⚡</span>
+                                <span class="btn-text">Upload & Run AI Analysis</span>
+                            </button>
+                        </div>
+
+                        <!-- Multi-Stage Upload Stepper & Shimmer Progress Track -->
+                        <div id="uploadProgress" class="upload-progress-container" style="display: none;">
+                            <div class="stepper-row">
+                                <div class="step-node active" id="stepNode1">
+                                    <span class="step-num">1</span>
+                                    <span class="step-name">Upload</span>
+                                </div>
+                                <div class="step-line" id="stepLine1"></div>
+                                <div class="step-node" id="stepNode2">
+                                    <span class="step-num">2</span>
+                                    <span class="step-name">Parse</span>
+                                </div>
+                                <div class="step-line" id="stepLine2"></div>
+                                <div class="step-node" id="stepNode3">
+                                    <span class="step-num">3</span>
+                                    <span class="step-name">Evaluate</span>
+                                </div>
+                                <div class="step-line" id="stepLine3"></div>
+                                <div class="step-node" id="stepNode4">
+                                    <span class="step-num">4</span>
+                                    <span class="step-name">Score</span>
+                                </div>
+                            </div>
+
+                            <div class="progress-bar-track">
+                                <div class="progress-bar-fill shimmer" id="uploadProgressBar"></div>
+                            </div>
+                            <div class="progress-status-text" id="uploadProgressText">
+                                Extracting resume text and running AI analysis...
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- ==================================================== -->
+            <!-- Tab 2: Analysis Results View                         -->
+            <!-- ==================================================== -->
+            <section class="tab-panel" id="analysis-tab" role="tabpanel" aria-labelledby="tabBtnAnalysis">
+                <!-- Empty State Card -->
+                <div class="card empty-analysis-card" id="analysisEmptyState">
+                    <div class="empty-state-illustration">
+                        <div class="empty-glow"></div>
+                        <span class="empty-icon">📊</span>
+                    </div>
+                    <h3>No Resume Analysis Selected</h3>
+                    <p>Upload a new resume to generate an instant ATS evaluation, or choose one from your saved Resume History to inspect its score breakdown.</p>
+                    <div class="empty-state-actions">
+                        <button class="primary-btn" id="emptyGoUploadBtn">
+                            <span>📤</span> Upload Resume Now
+                        </button>
+                        <button class="secondary-btn" id="emptyGoHistoryBtn">
+                            <span>📜</span> View Resume History
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Analysis Results Content -->
+                <div id="analysisContent" style="display: none;">
+                    <!-- Resume Meta Top Bar -->
+                    <div class="analysis-header-card">
+                        <div class="analysis-meta">
+                            <span class="analysis-type-badge" id="analysisTypeBadge">Document Upload</span>
+                            <h2 id="analysisResumeTitle">Candidate Resume</h2>
+                            <div class="analysis-submeta">
+                                <span>👤 <strong id="analysisCandidateName">Candidate</strong></span>
+                                <span class="meta-separator">•</span>
+                                <span>📧 <span id="analysisCandidateEmail">email@example.com</span></span>
+                                <span class="meta-separator">•</span>
+                                <span>🕒 Analyzed on <span id="analysisDate">Just now</span></span>
+                            </div>
+                        </div>
+                        <div class="analysis-actions">
+                            <button class="btn-secondary" id="analysisReanalyzeBtn" title="Re-run AI evaluation on this resume">
+                                <span class="btn-icon">🔄</span> Re-Analyze
+                            </button>
+                            <a href="#" target="_blank" class="btn-primary-outline" id="analysisViewDocBtn" style="display: none;" title="Open uploaded document">
+                                <span class="btn-icon">📄</span> View File
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Overall Score & Rating Hero -->
+                    <div class="analysis-hero-grid">
+                        <div class="card score-card">
+                            <div class="score-card-content">
+                                <!-- Circular SVG Gauge with Defs Gradient -->
+                                <div class="score-gauge-wrapper">
+                                    <div class="gauge-ambient-glow" id="gaugeGlow"></div>
+                                    <svg class="score-svg" viewBox="0 0 160 160">
+                                        <defs>
+                                            <linearGradient id="scoreGaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                <stop offset="0%" stop-color="#6366f1" />
+                                                <stop offset="50%" stop-color="#8b5cf6" />
+                                                <stop offset="100%" stop-color="#06b6d4" />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle class="score-circle-bg" cx="80" cy="80" r="68"></circle>
+                                        <circle class="score-circle-progress" id="scoreCircleProgress" cx="80" cy="80" r="68"></circle>
+                                    </svg>
+                                    <div class="score-number-display">
+                                        <span class="score-big" id="analysisOverallScore">0</span>
+                                        <span class="score-denominator">/ 100</span>
+                                    </div>
+                                </div>
+
+                                <div class="score-details">
+                                    <div class="score-badge" id="analysisRatingBadge">Calculating...</div>
+                                    <h3>Overall Resume Score</h3>
+                                    <p id="analysisScoreSummary">
+                                        Comprehensive score based on ATS readability, quantifiable achievements, impact action verbs, and skill depth.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- 4 Quick Stats Row -->
+                            <div class="score-quick-stats">
+                                <div class="stat-pill">
+                                    <span class="stat-icon">⚡</span>
+                                    <div class="stat-content">
+                                        <span class="stat-label">Action Verbs</span>
+                                        <strong class="stat-value" id="statActionVerbs">0</strong>
+                                    </div>
+                                </div>
+                                <div class="stat-pill">
+                                    <span class="stat-icon">🛠️</span>
+                                    <div class="stat-content">
+                                        <span class="stat-label">Skills Detected</span>
+                                        <strong class="stat-value" id="statSkillsCount">0</strong>
+                                    </div>
+                                </div>
+                                <div class="stat-pill">
+                                    <span class="stat-icon">📈</span>
+                                    <div class="stat-content">
+                                        <span class="stat-label">Metrics Found</span>
+                                        <strong class="stat-value" id="statMetricsCount">0</strong>
+                                    </div>
+                                </div>
+                                <div class="stat-pill">
+                                    <span class="stat-icon">📝</span>
+                                    <div class="stat-content">
+                                        <span class="stat-label">Total Words</span>
+                                        <strong class="stat-value" id="statWordCount">0</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Category Score Breakdown Grid -->
+                    <div class="category-scores-grid">
+                        <div class="category-card" data-cat="impact">
+                            <div class="cat-header">
+                                <div class="cat-title-wrap">
+                                    <span class="cat-icon">⚡</span>
+                                    <span class="cat-title">Impact & Action Verbs</span>
+                                </div>
+                                <span class="cat-score" id="catScoreImpact">0%</span>
+                            </div>
+                            <div class="cat-bar" title="Measures usage of dynamic verbs and quantifiable outcomes">
+                                <div class="cat-fill shimmer" id="catFillImpact" style="width: 0%;"></div>
+                            </div>
+                            <p class="cat-desc">Measures usage of dynamic verbs and quantifiable business outcomes.</p>
+                        </div>
+
+                        <div class="category-card" data-cat="skills">
+                            <div class="cat-header">
+                                <div class="cat-title-wrap">
+                                    <span class="cat-icon">🛠️</span>
+                                    <span class="cat-title">Skills & Technical Depth</span>
+                                </div>
+                                <span class="cat-score" id="catScoreSkills">0%</span>
+                            </div>
+                            <div class="cat-bar" title="Evaluates industry keywords, tools, and technical relevance">
+                                <div class="cat-fill shimmer" id="catFillSkills" style="width: 0%;"></div>
+                            </div>
+                            <p class="cat-desc">Evaluates industry keywords, modern tools, and technical domain relevance.</p>
+                        </div>
+
+                        <div class="category-card" data-cat="completeness">
+                            <div class="cat-header">
+                                <div class="cat-title-wrap">
+                                    <span class="cat-icon">📋</span>
+                                    <span class="cat-title">Completeness & Contact</span>
+                                </div>
+                                <span class="cat-score" id="catScoreCompleteness">0%</span>
+                            </div>
+                            <div class="cat-bar" title="Checks email, phone, location, and LinkedIn/GitHub links">
+                                <div class="cat-fill shimmer" id="catFillCompleteness" style="width: 0%;"></div>
+                            </div>
+                            <p class="cat-desc">Checks contact clarity: email, phone, location, LinkedIn & GitHub handles.</p>
+                        </div>
+
+                        <div class="category-card" data-cat="structure">
+                            <div class="cat-header">
+                                <div class="cat-title-wrap">
+                                    <span class="cat-icon">📐</span>
+                                    <span class="cat-title">Structure & Readability</span>
+                                </div>
+                                <span class="cat-score" id="catScoreStructure">0%</span>
+                            </div>
+                            <div class="cat-bar" title="Assesses summary, work experience, education, and layout clarity">
+                                <div class="cat-fill shimmer" id="catFillStructure" style="width: 0%;"></div>
+                            </div>
+                            <p class="cat-desc">Assesses summary, work experience, education chronology, and ATS layout clarity.</p>
+                        </div>
+                    </div>
+
+                    <!-- 3 Core Feedback Sections (Strengths, Weaknesses, Suggestions) -->
+                    <div class="analysis-feedback-grid">
+                        <!-- Strengths Card -->
+                        <div class="card feedback-card strengths-card">
+                            <div class="feedback-header">
+                                <span class="feedback-icon">🌟</span>
+                                <div>
+                                    <h3>Strengths</h3>
+                                    <p>What makes this resume stand out to recruiters</p>
+                                </div>
+                            </div>
+                            <ul class="feedback-list" id="analysisStrengthsList">
+                                <li>Loading strengths...</li>
+                            </ul>
+                        </div>
+
+                        <!-- Weaknesses Card -->
+                        <div class="card feedback-card weaknesses-card">
+                            <div class="feedback-header">
+                                <span class="feedback-icon">⚠️</span>
+                                <div>
+                                    <h3>Weaknesses</h3>
+                                    <p>Critical areas holding back your ATS ranking</p>
+                                </div>
+                            </div>
+                            <ul class="feedback-list" id="analysisWeaknessesList">
+                                <li>Loading weaknesses...</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Basic Improvement Suggestions (Interactive Checklist) -->
+                    <div class="card suggestions-card">
+                        <div class="feedback-header">
+                            <span class="feedback-icon">💡</span>
+                            <div>
+                                <h3>Actionable Improvement Suggestions</h3>
+                                <p>Interactive step-by-step checklist to optimize your resume score (click to mark completed)</p>
+                            </div>
+                        </div>
+                        <div class="suggestions-grid" id="analysisSuggestionsList">
+                            <!-- Populated dynamically with interactive checkboxes -->
+                        </div>
+                    </div>
+
+                    <!-- Detected Skills & Keywords -->
+                    <div class="card keywords-card">
+                        <div class="card-header-flex">
+                            <div>
+                                <h3>Detected Skills & Keywords</h3>
+                                <p>Keywords and technologies identified by the ATS AI scanner</p>
+                            </div>
+                            <span class="keyword-count-badge" id="keywordsCountBadge">0 Detected</span>
+                        </div>
+                        <div class="skills-tags-container" id="analysisSkillsContainer">
+                            <span class="empty-tag">No skills detected</span>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Extracted Text Preview -->
+                    <div class="card extracted-text-card">
+                        <div class="extracted-text-toggle" id="toggleExtractedTextBtn" role="button" tabindex="0">
+                            <div class="extracted-title-wrap">
+                                <span>📄</span>
+                                <strong>View Extracted Resume Text</strong>
+                            </div>
+                            <div class="extracted-actions">
+                                <button type="button" class="copy-text-btn" id="copyExtractedTextBtn" title="Copy raw text to clipboard">
+                                    📋 Copy Text
+                                </button>
+                                <span class="toggle-arrow" id="extractedTextArrow">▼</span>
+                            </div>
+                        </div>
+                        <div class="extracted-text-body" id="extractedTextBody" style="display: none;">
+                            <pre id="extractedTextContent">No extracted text available.</pre>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================================================== -->
+            <!-- Tab 3: Resume History View                           -->
+            <!-- ==================================================== -->
+            <section class="tab-panel" id="records-tab" role="tabpanel" aria-labelledby="tabBtnHistory">
+                <div class="card history-card">
+                    <div class="history-header">
+                        <div>
+                            <h3>Resume History & Saved Uploads</h3>
+                            <p>All resumes evaluated under your account. Search, filter, re-analyze, or review breakdown reports.</p>
+                        </div>
+                        <div class="history-header-actions">
+                            <button class="refresh-btn" id="refreshRecordsBtn" title="Reload history from database">
+                                <span class="btn-icon">🔄</span> Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- History Search & Filter Toolbar -->
+                    <div class="history-toolbar">
+                        <div class="history-search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" id="historySearchInput" placeholder="Search by resume name, candidate, or skill..." />
+                            <button type="button" class="clear-search-btn" id="clearHistorySearchBtn" style="display: none;">&times;</button>
+                        </div>
+
+                        <div class="history-filters-group">
+                            <div class="filter-pills" id="historyFilterPills">
+                                <button class="filter-pill active" data-filter="all">All</button>
+                                <button class="filter-pill" data-filter="excellent">Excellent (85+)</button>
+                                <button class="filter-pill" data-filter="strong">Strong (70-84)</button>
+                                <button class="filter-pill" data-filter="average">Average (55-69)</button>
+                                <button class="filter-pill" data-filter="poor">Needs Work (&lt;55)</button>
+                            </div>
+
+                            <select class="history-sort-select" id="historySortSelect" aria-label="Sort resumes">
+                                <option value="newest">Sort: Newest First</option>
+                                <option value="oldest">Sort: Oldest First</option>
+                                <option value="score-high">Sort: Highest Score</option>
+                                <option value="score-low">Sort: Lowest Score</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- History Cards Grid Container -->
+                    <div id="recordsContainer" class="records-grid">
+                        <div class="loading-spinner">Loading saved records...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- Personal Details Modal                                   -->
+    <!-- ======================================================== -->
+    <div class="modal-overlay" id="personalModal" role="dialog" aria-modal="true" aria-labelledby="personalModalTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 id="personalModalTitle">Personal Details & Profile</h3>
+                    <p id="personalModalSubtitle">Manage your contact info, technical skills, and background.</p>
+                </div>
+                <button class="modal-close-btn" id="closePersonalModalBtn" aria-label="Close modal">&times;</button>
+            </div>
+
+            <div id="onboardingBanner" class="onboarding-banner" style="display: none;">
+                👋 <strong>Welcome to AI Resume Analyzer!</strong> Please complete your profile once to unlock personalized recommendations.
+            </div>
+
+            <div id="personalAlert" class="alert-box" role="alert"></div>
+
+            <form id="personalDetailsForm">
+                <!-- Contact & Bio -->
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" placeholder="e.g. John Doe" required autocomplete="name" />
+                    </div>
+                    <div class="field">
+                        <label for="email">Contact Email</label>
+                        <input type="email" id="email" placeholder="e.g. john@example.com" required autocomplete="email" />
+                    </div>
+                    <div class="field">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="e.g. +1 555 123 4567" autocomplete="tel" />
+                    </div>
+                    <div class="field">
+                        <label for="location">Location / City</label>
+                        <input type="text" id="location" placeholder="e.g. San Francisco, CA" />
+                    </div>
+                    <div class="field">
+                        <label for="linkedin">LinkedIn Profile URL</label>
+                        <input type="url" id="linkedin" placeholder="https://linkedin.com/in/username" />
+                    </div>
+                    <div class="field">
+                        <label for="github">GitHub Profile URL</label>
+                        <input type="url" id="github" placeholder="https://github.com/username" />
+                    </div>
+                    <div class="field full-width">
+                        <label for="skills">Technical & Professional Skills (comma separated)</label>
+                        <input type="text" id="skills" placeholder="JavaScript, Python, React, Node.js, SQL, Express, Docker, AWS" />
+                    </div>
+                    <div class="field full-width">
+                        <label for="summary">Professional Summary</label>
+                        <textarea id="summary" rows="3" placeholder="Brief summary of your professional background, strengths, and career goals..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Experience Section -->
+                <div class="section-divider">
+                    <h4>Work Experience</h4>
+                </div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="expRole">Job Title / Role</label>
+                        <input type="text" id="expRole" placeholder="e.g. Senior Software Engineer" />
+                    </div>
+                    <div class="field">
+                        <label for="expCompany">Company Name</label>
+                        <input type="text" id="expCompany" placeholder="e.g. Acme Corp" />
+                    </div>
+                    <div class="field">
+                        <label for="expDuration">Duration</label>
+                        <input type="text" id="expDuration" placeholder="e.g. 2022 - Present" />
+                    </div>
+                    <div class="field full-width">
+                        <label for="expDesc">Role Description / Achievements</label>
+                        <textarea id="expDesc" rows="2" placeholder="Key responsibilities, technologies used, and quantifiable outcomes..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Education Section -->
+                <div class="section-divider">
+                    <h4>Education</h4>
+                </div>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="eduDegree">Degree / Certification</label>
+                        <input type="text" id="eduDegree" placeholder="e.g. B.Tech in Computer Science" />
+                    </div>
+                    <div class="field">
+                        <label for="eduInst">Institution / University</label>
+                        <input type="text" id="eduInst" placeholder="e.g. Stanford University" />
+                    </div>
+                    <div class="field">
+                        <label for="eduYear">Graduation Year</label>
+                        <input type="text" id="eduYear" placeholder="e.g. 2024" />
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancelPersonalBtn">Close</button>
+                    <button type="submit" class="submit-btn" id="savePersonalBtn">
+                        <span class="btn-icon">💾</span> Save & Run AI Analysis
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- Delete Confirmation Modal                                -->
+    <!-- ======================================================== -->
+    <div class="modal-overlay" id="deleteConfirmModal" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+        <div class="modal-content modal-content-sm">
+            <div class="modal-header">
+                <div>
+                    <h3 id="deleteModalTitle">Delete Resume Record</h3>
+                    <p>Are you sure you want to permanently delete this resume record?</p>
+                </div>
+            </div>
+            <p class="delete-warning-text">This action cannot be undone. All ATS scoring breakdown data and associated uploaded files will be removed.</p>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="cancelDeleteBtn">Cancel</button>
+                <button type="button" class="danger-btn" id="confirmDeleteBtn">🗑️ Delete Record</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

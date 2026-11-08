@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer • Intelligent ATS Optimization</title>
+    <meta name="description" content="AI-powered resume analysis and ATS scoring platform. Optimize your resume for top tech recruiters in seconds.">
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Ambient Aurora / Mesh Gradient Background -->
+    <div class="ambient-glow orb-1"></div>
+    <div class="ambient-glow orb-2"></div>
+    <div class="ambient-glow orb-3"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <!-- Theme Toggle Floating Button -->
+    <button class="theme-toggle-floating" id="authThemeToggle" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+        <span class="theme-icon sun-icon">☀️</span>
+        <span class="theme-icon moon-icon">🌙</span>
+    </button>
+
+    <!-- Main Auth Container -->
+    <div class="container" id="container">
+
+        <!-- ======================= -->
+        <!-- Sign Up Container       -->
+        <!-- ======================= -->
+        <div class="form-container sign-up-container">
+            <form id="signupForm" novalidate>
+                <div class="brand-badge">
+                    <span class="badge-dot"></span>
+                    <span>AI-Powered ATS Platform</span>
+                </div>
+                <h2>Create Account</h2>
+                <span class="subtitle">Join thousands of candidates landing top interviews</span>
+
+                <div class="form-alert" id="signupAlert" role="alert"></div>
+
+                <!-- Full Name Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </span>
+                        <input type="text" id="signup-name" placeholder=" " required autocomplete="name" />
+                        <label for="signup-name">Full Name</label>
+                    </div>
+                </div>
+
+                <!-- Email Address Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </span>
+                        <input type="email" id="signup-email" placeholder=" " required autocomplete="email" />
+                        <label for="signup-email">Email Address</label>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </span>
+                        <input type="password" id="signup-password" placeholder=" " minlength="6" required autocomplete="new-password" />
+                        <label for="signup-password">Password (min 6 characters)</label>
+                        <button type="button" class="password-toggle" id="toggleSignupPassword" aria-label="Toggle password visibility">
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="7" r="3"></circle>
+                            </svg>
+                            <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Live Password Strength Meter -->
+                    <div class="password-strength-meter" id="signupPasswordMeter">
+                        <div class="meter-bars">
+                            <span class="bar bar-1"></span>
+                            <span class="bar bar-2"></span>
+                            <span class="bar bar-3"></span>
+                            <span class="bar bar-4"></span>
+                        </div>
+                        <span class="strength-text" id="signupStrengthText">Strength: Too short</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="primary-btn" id="signupBtn">
+                    <span class="btn-text">Create Account</span>
+                    <span class="btn-loader" style="display: none;">
+                        <svg class="spinner-svg" viewBox="0 0 50 50">
+                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                        </svg>
+                    </span>
+                    <span class="btn-arrow">→</span>
+                </button>
+
+                <!-- Mobile switch link -->
+                <p class="mobile-switch-text">
+                    Already have an account? <button type="button" class="link-btn" id="mobileSignInBtn">Sign In</button>
+                </p>
+            </form>
+        </div>
+
+        <!-- ======================= -->
+        <!-- Sign In Container       -->
+        <!-- ======================= -->
+        <div class="form-container sign-in-container">
+            <form id="signinForm" novalidate>
+                <div class="brand-badge">
+                    <span class="badge-dot"></span>
+                    <span>AI-Powered ATS Platform</span>
+                </div>
+                <h2>Welcome Back</h2>
+                <span class="subtitle">Access your resume analytics & ATS benchmark scores</span>
+
+                <div class="form-alert" id="signinAlert" role="alert"></div>
+
+                <!-- Email Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                        </span>
+                        <input type="email" id="signin-email" placeholder=" " required autocomplete="email" />
+                        <label for="signin-email">Email Address</label>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <span class="input-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                        </span>
+                        <input type="password" id="signin-password" placeholder=" " required autocomplete="current-password" />
+                        <label for="signin-password">Password</label>
+                        <button type="button" class="password-toggle" id="toggleSigninPassword" aria-label="Toggle password visibility">
+                            <svg class="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="7" r="3"></circle>
+                            </svg>
+                            <svg class="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-meta-row">
+                    <label class="remember-label">
+                        <input type="checkbox" id="rememberMeCheckbox" checked />
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password" id="forgotPasswordLink">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="primary-btn" id="signinBtn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loader" style="display: none;">
+                        <svg class="spinner-svg" viewBox="0 0 50 50">
+                            <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                        </svg>
+                    </span>
+                    <span class="btn-arrow">→</span>
+                </button>
+
+                <!-- Mobile switch link -->
+                <p class="mobile-switch-text">
+                    Don't have an account? <button type="button" class="link-btn" id="mobileSignUpBtn">Sign Up</button>
+                </p>
+            </form>
+        </div>
+
+        <!-- ======================= -->
+        <!-- Overlay Panel           -->
+        <!-- ======================= -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <!-- Left Panel (Shown when active on Sign Up) -->
+                <div class="overlay-panel overlay-left">
+                    <div class="overlay-badge">Resume Intelligence</div>
+                    <h2>Welcome Back!</h2>
+                    <p>Already have an evaluation in progress? Sign in to review your ATS scores, keywords, and recruiter suggestions.</p>
+                    
+                    <div class="overlay-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">✨</span>
+                            <span>Real-time ATS Score calculation (0-100)</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🎯</span>
+                            <span>Quantifiable impact & action-verb analysis</span>
+                        </div>
+                    </div>
+
+                    <button class="ghost-btn" id="signIn">Sign In Instead</button>
+                </div>
+
+                <!-- Right Panel (Shown on Default Sign In view) -->
+                <div class="overlay-panel overlay-right">
+                    <div class="overlay-badge">AI Career Platform</div>
+                    <h2>Score Your Resume Instantly</h2>
+                    <p>Unlock industry-level ATS feedback, uncover missed keywords, and tailor your profile for competitive tech applications.</p>
+                    
+                    <div class="overlay-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">📁</span>
+                            <span>Full PDF, DOCX & TXT instant document parsing</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">🚀</span>
+                            <span>Detailed step-by-step improvement roadmap</span>
+                        </div>
+                    </div>
+
+                    <button class="ghost-btn" id="signUp">Create Free Account</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
